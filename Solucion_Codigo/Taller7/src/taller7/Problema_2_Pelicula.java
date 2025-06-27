@@ -15,56 +15,83 @@ Los escenarios de prueba pueden darse para el alquiler de una o varias peliculas
  * @author Javier Vinan
  */
 import java.util.ArrayList;
-
 public class Problema_2_Pelicula {
     public static void main(String[] args) {
-        Pelicula pelicula1 = new Pelicula("Stic");
-        Pelicula pelicula2 = new Pelicula("La monja");
-        VHS vhs1 = new VHS("ESP", pelicula1, 1.5);
+        Pelicula pelicula1 = new Pelicula("Stich", "Mateo", 2006);
+        Pelicula pelicula2 = new Pelicula("La monja", "Mateo", 1998);
+        VHS vhs1 = new VHS("EPS", pelicula1, 1.50);
         System.out.println(vhs1);
     }
 }
 
 class SoportePelicula{
-    public double precioAlq;
-    public SoportePelicula(double precioAlq) {
-        this.precioAlq = precioAlq; }
-    public String toString() {
-        return "SoportePelicula{" + "precioAlq=" + precioAlq + '}';
+    public double precioAlquiler;
+
+    public SoportePelicula(double precioAlquiler) {
+        this.precioAlquiler = precioAlquiler;
     }
+
+    @Override
+    public String toString() {
+        return "SoportePelicula{" + "precioAlquiler=" + precioAlquiler + '}';
+    }
+
 }
+
 class DVD extends SoportePelicula{
     public String idioma[];
     public ArrayList<Pelicula> pelicula;
-    public DVD(String[] idioma, ArrayList<Pelicula> pelicula, double precioAlq) {
-        super(precioAlq);
+    
+    public DVD(String[] idioma, ArrayList<Pelicula> pelicula, double precioAlquiler) {
+        super(precioAlquiler);
         this.idioma = idioma;
         this.pelicula = pelicula;
     }
-    public void calcularPrecioAlq(){
-        this.precioAlq += (this.precioAlq * 0.1);
+    
+    public void calcularPrecioAlquiler(){
+        this.precioAlquiler += this.precioAlquiler * 0.1;
     }
+
+    @Override
     public String toString() {
-        return "DVD{" + "idioma=" + idioma + ", pelicula=" + pelicula + "}  " + super.toString();
+        return "DVD{" + "idioma = " + idioma + ", pelicula = " + pelicula + '}';
     }
+    
 }
+
 class VHS extends SoportePelicula{
     public String idioma;
     public Pelicula pelicula;
-    public VHS(String idioma, Pelicula pelicula, double precioAlq) {
-        super(precioAlq);
+
+    public VHS(String idioma, Pelicula pelicula, double precioAlquiler) {
+        super(precioAlquiler);
         this.idioma = idioma;
         this.pelicula = pelicula;
     }
+
+    @Override
     public String toString() {
-        return "VHS{" + "idioma=" + idioma + ", pelicula=" + pelicula + "}   " + super.toString();
+        return "VHS{" + "idioma =" + idioma + ", pelicula = " + pelicula +  super.toString() + "}";
     }
+    
+    
 }
+
 class Pelicula{
     public String titulo;
-    public Pelicula(String titulo) {
-        this.titulo = titulo;    }
-    public String toString() {
-        return "Pelicula{" + "titulo=" + titulo + '}';
+    public String autor;
+    public int añoEdicion;
+
+    public Pelicula(String titulo, String autor, int añoEdicion) {
+        this.titulo = titulo;
+        this.autor = autor;
+        this.añoEdicion = añoEdicion;
     }
+
+    @Override
+    public String toString() {
+        return "Pelicula{" + "titulo =" + titulo + ", autor =" + autor + ", a\u00f1oEdicion =" + añoEdicion + '}';
+    }
+
+    
 }

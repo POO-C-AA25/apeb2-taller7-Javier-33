@@ -53,175 +53,153 @@ package taller7;
  * @author Javier Vinan
  */
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
-
 public class Problema_5_SistemaTeatro {
-
     public static void main(String[] args) {
-        ArrayList<Sector> sectores = new ArrayList<>();
-        Sector vip = new Sector(25, 17.5, "VIP", 200);
-        sectores.add(vip);
-        Sector box = new Sector(70, 40, "Box", 40);
-        sectores.add(box);
-        Sector preferencia = new Sector(20, 14, "Preferencia", 400);
-        sectores.add(preferencia);
-        Sector general = new Sector(15.5, 10, "General", 100);
-        sectores.add(general);
+        Teatro teatro = new Teatro();
 
-        int continuar = 0, tipoPrecio = 0, codigo = 0;
-        Scanner scan = new Scanner(System.in);
-        ArrayList<Boleto> vendidos = new ArrayList<>();
+        teatro.venderEntrada("Principal", "Juan", "Normal");
+        teatro.venderEntrada("PalcoB", "Ana", "Abonado");
+        teatro.venderEntrada("Central", "Luis", "Reducida");
 
-        while (continuar == 0) {
-            System.out.println("\n\n--- SISTEMA DE BOLETOS TEATRO ---");
-            System.out.println("1. Vender boleto");
-            System.out.println("2. Buscar boleto por código");
-            System.out.println("3. Salir");
-            System.out.print("Opción: ");
-            int opcion = scan.nextInt();
+        System.out.println("\n=== Consultas ===");
+        System.out.println(teatro.consultarEntrada(1));
+        System.out.println(teatro.consultarEntrada(2));
+        System.out.println(teatro.consultarEntrada(3));
+    }
+}
 
-            switch (opcion) {
-                case 1:
-                    System.out.println("Seleccione sector:");
-                    System.out.println("[1]VIP\n[2]Box\n[3]Preferencia\n[4]General");
-                    int opcionSector = scan.nextInt();
-                    Sector sectorSeleccionado = sectores.get(opcionSector - 1);
+class Zona {
+    public String nombre;
+    public int disponibles;
+    public int total;
+    public double precioNormal;
+    public double precioAbonado;
 
-                    if (sectorSeleccionado.hayEspacio()) {
-                        System.out.print("Nombre de asistente: ");
-                        String nombreAsistente = scan.next();
+    public Zona(String nombre, int total, double precioNormal, double precioAbonado) {
+        this.nombre = nombre;
+        this.total = total;
+        this.disponibles = total;
+        this.precioNormal = precioNormal;
+        this.precioAbonado = precioAbonado;
+    }
+}
 
-                        System.out.println("Tipo de boleto:");
-                        System.out.println("[1]Regular\n[2]Suscriptor\n[3]Descuento");
-                        tipoPrecio = scan.nextInt();
 
-                        Boleto boleto = null;
-                        switch (tipoPrecio) {
-                            case 1:
-                                boleto = new Regular(sectorSeleccionado, nombreAsistente);
-                                break;
-                            case 2:
-                                boleto = new Suscriptor(sectorSeleccionado, nombreAsistente);
-                                break;
-                            case 3:
-                                boleto = new Descuento(sectorSeleccionado, nombreAsistente);
-                                break;
-                        }
-                        sectorSeleccionado.restarAsiento();
-                        boleto.calcularCosto();
-                        boleto.asignarCodigo();
-                        vendidos.add(boleto);
-                        System.out.println(boleto);
-                    } else {
-                        System.out.println("¡No quedan asientos en este sector!");
-                    }
-                    break;
-                case 2:
-                    System.out.print("Ingrese el código a buscar: ");
-                    codigo = scan.nextInt();
-                    boolean encontrado = false;
-                    for (Boleto b : vendidos) {
-                        if (b.codigo == codigo) {
-                            System.out.println("\n>> Asistente: " + b.nombreComprador);
-                            System.out.println(">> Costo: " + b.costo);
-                            System.out.println(">> Sector: " + b.sector.nombreSector + "\n");
-                            encontrado = true;
-                        }
-                    }
-                    if (!encontrado) {
-                        System.out.println("No se encontró el boleto.");
-                    }
-                    break;
-                case 3:
-                    continuar = 1;
-                    break;
-                default:
-                    System.out.println("Opción inválida.");
+class Entrada {
+    public int id;
+    public String zona;
+    public String comprador;
+    public double precioBase;
+
+    public Entrada(int id, String zona, String comprador, double precioBase) {
+        this.id = id;
+        this.zona = zona;
+        this.comprador = comprador;
+        this.precioBase = precioBase;
+    }
+
+    public double calcularPrecio() {
+        return precioBase;
+    }
+}
+
+class EntradaNormal extends Entrada {
+    public EntradaNormal(int id, String zona, String comprador, double precioBase) {
+        super(id, zona, comprador, precioBase);
+    }
+
+}
+
+class EntradaAbonado extends Entrada {
+    public EntradaAbonado(int id, String zona, String comprador, double precioBase) {
+        super(id, zona, comprador, precioBase);
+    }
+
+    @Override
+    public double calcularPrecio() {
+        return precioBase;
+    }
+}
+
+class EntradaReducida extends Entrada {
+    public EntradaReducida(int id, String zona, String comprador, double precioBase) {
+        super(id, zona, comprador, precioBase);
+    }
+
+    @Override
+    public double calcularPrecio() {
+        return precioBase * 0.85;
+    }
+}
+
+
+class Teatro {
+    public ArrayList<Zona> zonas = new ArrayList<>();
+    public ArrayList<Entrada> entradas = new ArrayList<>();
+    public int nextId = 1;
+
+    public Teatro() {
+
+        zonas.add(new Zona("Principal", 200, 25.0, 17.5));
+        zonas.add(new Zona("PalcoB", 40, 70.0, 40.0));
+        zonas.add(new Zona("Central", 400, 20.0, 14.0));
+        zonas.add(new Zona("Lateral", 100, 15.5, 10.0));
+    }
+
+    public Entrada venderEntrada(String zonaNombre, String comprador, String tipo) {
+
+        Zona zona = null;
+        for (Zona z : zonas) {
+            if (z.nombre.equals(zonaNombre)) {
+                zona = z;
+                break;
             }
         }
-        scan.close();
-    }
-}
 
-class Sector {
+        if (zona == null) {
+            System.out.println("Error: Zona no existe");
+            return null;
+        }
+        if (zona.disponibles <= 0) {
+            System.out.println("Error: Zona agotada");
+            return null;
+        }
 
-    public double precioBase;
-    public double precioSuscriptor;
-    public String nombreSector;
-    public int asientos;
+        Entrada entrada = null;
+        switch (tipo.toLowerCase()) {
+            case "normal":
+                entrada = new EntradaNormal(nextId, zona.nombre, comprador, zona.precioNormal);
+                break;
+            case "abonado":
+                entrada = new EntradaAbonado(nextId, zona.nombre, comprador, zona.precioAbonado);
+                break;
+            case "reducida":
+                entrada = new EntradaReducida(nextId, zona.nombre, comprador, zona.precioNormal);
+                break;
+            default:
+                System.out.println("Error: Tipo de entrada no válido");
+                return null;
+        }
 
-    public Sector(double precioBase, double precioSuscriptor, String nombreSector, int asientos) {
-        this.precioBase = precioBase;
-        this.precioSuscriptor = precioSuscriptor;
-        this.nombreSector = nombreSector;
-        this.asientos = asientos;
-    }
+        entradas.add(entrada);
+        zona.disponibles--;
+        nextId++;
 
-    public boolean hayEspacio() {
-        return this.asientos > 0;
-    }
-
-    public void restarAsiento() {
-        this.asientos -= 1;
-    }
-}
-
-class Boleto {
-
-    public Sector sector;
-    public int codigo;
-    public String nombreComprador;
-    public double costo;
-
-    public Boleto(Sector sector, String nombreComprador) {
-        this.sector = sector;
-        this.nombreComprador = nombreComprador;
+        System.out.println("Vendida: " + entrada.getClass().getSimpleName() + 
+                          " #" + entrada.id + " - $" + entrada.calcularPrecio());
+        return entrada;
     }
 
-    public double calcularCosto() {
-        this.costo = this.sector.precioBase;
-        return costo;
-    }
-
-    public void asignarCodigo() {
-        Random aleatorio = new Random();
-        int num = 10000 + aleatorio.nextInt(90000);
-        this.codigo = num;
-    }
-
-    public String toString() {
-        return "Boleto{" + "codigo=" + codigo + ", costo=" + costo + '}';
-    }
-}
-
-class Regular extends Boleto {
-
-    public Regular(Sector sector, String nombreComprador) {
-        super(sector, nombreComprador);
-    }
-}
-
-class Descuento extends Boleto {
-
-    public Descuento(Sector sector, String nombreComprador) {
-        super(sector, nombreComprador);
-    }
-
-    public double calcularCosto() {
-        this.costo = super.calcularCosto() * 0.85;
-        return costo;
-    }
-}
-
-class Suscriptor extends Boleto {
-
-    public Suscriptor(Sector sector, String nombreComprador) {
-        super(sector, nombreComprador);
-    }
-
-    public double calcularCosto() {
-        this.costo = this.sector.precioSuscriptor;
-        return costo;
+    public String consultarEntrada(int id) {
+        for (Entrada e : entradas) {
+            if (e.id == id) {
+                return "Entrada #" + e.id + 
+                       " | Tipo: " + e.getClass().getSimpleName() +
+                       " | Zona: " + e.zona + 
+                       " | Comprador: " + e.comprador + 
+                       " | Precio: $" + e.calcularPrecio();
+            }
+        }
+        return "Error: Entrada no encontrada";
     }
 }
